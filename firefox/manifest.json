@@ -4,7 +4,7 @@
     "version": "1.0",
     "description": "Implements a single Orbs account",
     "icons": {
-        "48": "icons/border-48.png"
+        "48": "icons/orbs.svg"
     },
     "content_scripts": [
         {

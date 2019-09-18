@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "cross-env webpack"
+    "build": "cross-env webpack && cross-env webpack --config webpack.config.test.js"
   },
   "author": "Kirill Maksimov <kirill@orbs.com>",
   "license": "MIT",
