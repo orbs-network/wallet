@@ -1,4 +1,5 @@
 import { createAccount, DefaultSigner, Account } from "orbs-client-sdk";
+import { get } from "lodash";
 
 export class Wallet {
     constructor() {
