@@ -1,0 +1,38 @@
+<html>
+<head>
+<script>
+    class Wallet {
+        constructor(context) {
+            this.context = context;
+            this.callbackName = `orbsWalletCallback${new Date().getTime()}`;
+            this.context[this.callbackName] = this.onMessage.bind(this);
+        }
+
+        async getAccounts() {
+            this.context.orbsWalletSendMessage({
+                callbackName: this.callbackName,
+                type: "call",
+                method: "getAccounts",
+                params: [],
+            });
+        }
+
+        onMessage(type, value) {
+            console.log(type, value)
+        }
+    }
+
+    (async () => {
+        await new Promise((resolve, reject) => {
+            setTimeout(resolve, 500);
+        })
+
+        const wallet = new Wallet(window);
+        const accounts = await wallet.getAccounts();
+        console.log(accounts);
+    })();
+</script>
+</head>
+<body>
+</body>
+</html>
