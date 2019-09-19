@@ -1,4 +1,4 @@
-import { encodeHex, decodeHex, Client, argAddress, NetworkType } from "orbs-client-sdk";
+import { encodeHex, decodeHex, Client, argAddress, NetworkType, argString } from "orbs-client-sdk";
 
 class ExtensionProxy {
     constructor(context) {
@@ -41,8 +41,7 @@ class ExtensionProxy {
         this.context.dispatchEvent(event);
     }
 }
-
-class Wallet {
+export class Wallet {
     constructor(context) {
         this.context = context;
     }
@@ -67,7 +66,8 @@ class Wallet {
 
 (async () => {
     await new Promise((resolve, reject) => {
-        setTimeout(resolve, 500);
+        // Waiting for extension to initialize
+        setTimeout(resolve, 200);
     })
 
     const wallet = new Wallet(window);
@@ -75,13 +75,20 @@ class Wallet {
     window.accounts = accounts;
     console.log("Accounts", accounts);
 
+    const addr0 = await accounts[0].getAddress();
+    console.log("Account 0 address", addr0);
+
     const pubKey0 = await accounts[0].getPublicKey();
     console.log("Account 0 public key", encodeHex(pubKey0));
     const signature0 = await accounts[0].signEd25519(pubKey0);
     console.log("Account 0 signed payload", encodeHex(signature0));
 
     const client = new Client("https://node1.demonet.orbs.com/vchains/1000", 1000, NetworkType.NETWORK_TYPE_TEST_NET, accounts[0]);
-    const query = await client.createQuery("NamesV5", "get", [argAddress("0x99eb4af1f3b3b8619c7e3d99dc5a13c966f9d6e2")]);
+    const query = await client.createQuery("NamesV5", "get", [argAddress(addr0)]);
     const result = await client.sendQuery(query);
-    console.log(result.outputArguments[0]);
+    console.log("Account 0 name (from NamesV5 contract on Demonet) is", result.outputArguments[0].value);
+
+    const [ tx, txId ] = await client.createTransaction("NamesV5", "set", [argString("Kirill")]);
+    const txResult = await client.sendTransaction(tx);
+    console.log("Updating name status", txResult.executionResult);
 })();
