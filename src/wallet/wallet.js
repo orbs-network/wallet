@@ -9,31 +9,32 @@ class ExtensionProxy {
 
     }
 
-    async sendMessage(target, argList) {
+    async sendMessage(id, method, argList) {
         return new Promise((resolve, reject) => {
             // event name should be unique
-            this.context.addEventListener("message", (e) => {
+            this.context.addEventListener(`proxyMessage${id}`, (e) => {
                 // console.log("received event", e);
                 resolve(e.detail.value);
             })
 
             this.context.orbsWalletSendMessage({
                 callbackName: this.callbackName,
+                accountId: id,
                 type: "call",
-                method: target,
+                method: method,
                 params: argList,
             });
         })
     }
 
-    onMessage(type, value) {
+    onMessage(id, type, value) {
         // console.log(type, value)
         let deserializedValue = value;
         if (type == "Uint8Array") {
             deserializedValue = decodeHex(value);
         }
 
-        let event = new CustomEvent("message", {
+        let event = new CustomEvent(`proxyMessage${id}`, {
             detail: {
                 type, value: deserializedValue
             }
@@ -42,25 +43,25 @@ class ExtensionProxy {
     }
 }
 
+function buildProxy(context, id) {
+    const extentionProxy = new ExtensionProxy(context);
+    return new Proxy({}, {
+        get: (target, property) => {
+            return new Proxy(() => {}, {
+                apply: (target, thisArg, argList) => {
+                    return extentionProxy.sendMessage(id, property, argList);
+                }
+            })
+        },
+    })
+}
+
 export class Wallet {
     constructor(context) {
         this.context = context;
     }
 
-    async getAccounts() {
-        return [this._getProxy()]
-    }
-
-    _getProxy() {
-        const extentionProxy = new ExtensionProxy(this.context);
-        return new Proxy({}, {
-            get: (target, property) => {
-                return new Proxy(() => {}, {
-                    apply: (target, thisArg, argList) => {
-                        return extentionProxy.sendMessage(property, argList);
-                    }
-                })
-            },
-        })
+    async enable() {
+        return [buildProxy(this.context, 0), buildProxy(this.context, 1), buildProxy(this.context, 2)];
     }
 }

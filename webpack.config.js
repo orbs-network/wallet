@@ -6,7 +6,7 @@ const prod = mode === 'production';
 
 module.exports = {
   entry: {
-    bundle: ['./src/extension/extension.js']
+    bundle: ['./src/extension/contentscript.js']
   },
   resolve: {
     extensions: ['.mjs', '.js', '.svelte']
@@ -52,12 +52,6 @@ module.exports = {
       filename: '[name].css'
     }),
     new webpack.EnvironmentPlugin({
-      'ORBS_NODE_ADDRESS': process.env.ORBS_NODE_ADDRESS,
-      'ORBS_VCHAIN': process.env.ORBS_VCHAIN,
-      'ORBS_PRISM_URL': process.env.ORBS_PRISM_URL,
-      'ORBS_ERC721': process.env.ORBS_ERC721,
-      'ORBS_PROVENANCE': process.env.ORBS_PROVENANCE,
-      'ORBS_NAMES': process.env.ORBS_NAMES
     })
   ],
   devtool: prod ? false : 'source-map'
