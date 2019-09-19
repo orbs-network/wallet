@@ -6,7 +6,7 @@ const prod = mode === 'production';
 
 module.exports = {
   entry: {
-    bundle: ['./src/export.js']
+    bundle: ['./src/extension/extension.js']
   },
   resolve: {
     extensions: ['.mjs', '.js', '.svelte']
