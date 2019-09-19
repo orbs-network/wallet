@@ -46,18 +46,17 @@ export class Wallet {
 
 const wallet = new Wallet();
 
-async function onMessage({ type, accountId, method, params, callbackName }) {
+async function onMessage({ type, requestId, accountId, method, params, callbackName }) {
     if (type == "call") {
         try {
-            // console.log(method, params, callbackName)
             const value = await wallet.accounts[accountId][method](...params);
             let serializedValue = value;
-            let type;
+            let returnType;
             if (get(value, "__proto__.constructor.name") == "Uint8Array") {
-                type = "Uint8Array";
+                returnType = "Uint8Array";
                 serializedValue = encodeHex(value);
             }
-            window.wrappedJSObject[callbackName](accountId, type, serializedValue);
+            window.wrappedJSObject[callbackName](requestId, returnType, serializedValue);
         } catch (e) {
             console.log("Failed to call page code", e);
         }
