@@ -33,10 +33,12 @@ function log(...contents) {
         setTimeout(resolve, 200);
     })
 
-    const wallet = new Wallet(window);
-    const accounts = await wallet.enable();
+    // const wallet = new Wallet(window);
+    // const accounts = await wallet.enable();
 
-    await test(accounts, 0, "Iggy Pop", log);
-    await test(accounts, 1, "David Bowie", log);
-    await test(accounts, 2, "Avril Lavigne", log);
+    // await test(accounts, 0, "Iggy Pop", log);
+    // await test(accounts, 1, "David Bowie", log);
+    // await test(accounts, 2, "Avril Lavigne", log);
+
+    window.postMessage({ type: "FROM_PAGE", text: "Hello from the webpage!" }, "*");
 })();

@@ -56,11 +56,42 @@ async function onMessage({ type, requestId, accountId, method, params, callbackN
                 returnType = "Uint8Array";
                 serializedValue = encodeHex(value);
             }
-            window.wrappedJSObject[callbackName](requestId, returnType, serializedValue);
+
+            if (isFirefox()) {
+                window.wrappedJSObject[callbackName](requestId, returnType, serializedValue);
+            } else if (isChrome()) {
+                console.log("To be done: chrome code", arguments);
+            }
         } catch (e) {
             console.log("Failed to call page code", e);
         }
     }
 }
 
-exportFunction(onMessage, window, {defineAs: "orbsWalletSendMessage"});
+function isChrome() {
+    return typeof chrome !== "undefined";
+}
+
+function isFirefox() {
+    return typeof exportFunction !== "undefined";
+}
+
+if (isFirefox()) {
+    exportFunction(onMessage, window, {defineAs: "orbsWalletSendMessage"});
+}
+
+if (isChrome()) {
+    console.log("this is chrome")
+    var port = chrome.runtime.connect();
+
+    window.addEventListener("message", function(event) {
+        // We only accept messages from ourselves
+        if (event.source != window)
+            return;
+
+        if (event.data.type && (event.data.type == "FROM_PAGE")) {
+            console.log("Content script received: " + event.data.text);
+            port.postMessage(event.data.text);
+        }
+    }, false);
+}
