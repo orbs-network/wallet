@@ -6,13 +6,13 @@ const prod = mode === 'production';
 
 module.exports = {
   entry: {
-    bundle: ['./firefox/test/test.js']
+    bundle: ['./extension/test/test.js']
   },
   resolve: {
     extensions: ['.mjs', '.js', '.svelte']
   },
   output: {
-    path: __dirname + '/firefox/test',
+    path: __dirname + '/extension/test',
     filename: '[name].js',
     chunkFilename: '[name].[id].js'
   },

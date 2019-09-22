@@ -12,7 +12,7 @@ module.exports = {
     extensions: ['.mjs', '.js', '.svelte']
   },
   output: {
-    path: __dirname + '/firefox',
+    path: __dirname + '/extension',
     filename: '[name].js',
     chunkFilename: '[name].[id].js'
   },
