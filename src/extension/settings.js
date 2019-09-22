@@ -1,5 +1,6 @@
-import { createAccount, DefaultSigner, encodeHex, decodeHex } from "orbs-client-sdk";
+import { DefaultSigner } from "orbs-client-sdk";
 import { serialize, deserialize } from "../serialization";
+import { getAccount } from "../accounts.js";
 
 class ExtensionSigner extends DefaultSigner {
     constructor(account) {
@@ -12,31 +13,13 @@ class ExtensionSigner extends DefaultSigner {
     }
 }
 
-function getAccount(id) {
-    const PUBLIC_KEY = `sender_public_key_${id}`;
-    const PRIVATE_KEY = `sender_private_key_${id}`;
-    const ADDRESS = `sender_address_${id}`;
-
-    let account;
-    if (!localStorage.getItem(PUBLIC_KEY)) {
-        account = createAccount();
-        localStorage.setItem(PUBLIC_KEY, encodeHex(account.publicKey));
-        localStorage.setItem(PRIVATE_KEY, encodeHex(account.privateKey));
-        localStorage.setItem(ADDRESS, account.address);
-    } else {
-        account = {
-            publicKey: decodeHex(localStorage.getItem(PUBLIC_KEY)),
-            privateKey: decodeHex(localStorage.getItem(PRIVATE_KEY)),
-            address: localStorage.getItem(ADDRESS)
-        }
-    }
-
-    return new ExtensionSigner(account);
-}
-
 export class Wallet {
     constructor() {
-        this.accounts = [getAccount(0), getAccount(1), getAccount(2)];
+        this.accounts = [
+            new ExtensionSigner(getAccount(0)),
+            new ExtensionSigner(getAccount(1)),
+            new ExtensionSigner(getAccount(2)),
+        ];
     }
 
     async getAccounts() {

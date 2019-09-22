@@ -6,7 +6,8 @@
     "icons": {
         "32": "icons/orbs.svg",
         "48": "icons/orbs.svg",
-        "96": "icons/orbs.svg"
+        "96": "icons/orbs.svg",
+        "128": "icons/orbs.svg"
     },
     "content_scripts": [
         {
@@ -14,12 +15,12 @@
                 "<all_urls>"
             ],
             "js": [
-                "contentscript.js"
+                "bundle.contentscript.js"
             ]
         }
     ],
     "background": {
-        "scripts": ["bundle.js"]
+        "scripts": ["bundle.settings.js"]
     },
     "browser_action": {
         "browser_style": true,
@@ -28,7 +29,8 @@
         "default_icon": {
             "32": "icons/orbs.svg",
             "48": "icons/orbs.svg",
-            "96": "icons/orbs.svg"
+            "96": "icons/orbs.svg",
+            "128": "icons/orbs.svg"
         }
       }
 }
