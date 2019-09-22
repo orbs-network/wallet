@@ -1,5 +1,5 @@
 import { createAccount, DefaultSigner, encodeHex, decodeHex } from "orbs-client-sdk";
-import { get } from "lodash";
+import { serialize, deserialize } from "../serialization";
 
 class ExtensionSigner extends DefaultSigner {
     constructor(account) {
@@ -48,18 +48,12 @@ const wallet = new Wallet();
 
 let contentPort;
 
-async function onMessage({ type, requestId, accountId, method, params }) {
+async function onMessage({ type, requestId, accountId, method, params, source }) {
     if (type == "call") {
         try {
-            const value = await wallet.accounts[accountId][method](...params);
-            let serializedValue = value;
-            let returnType;
-            if (get(value, "__proto__.constructor.name") == "Uint8Array") {
-                returnType = "Uint8Array";
-                serializedValue = encodeHex(value);
-            }
-
-            contentPort.postMessage({ type: "callValue", requestId, returnType, value: serializedValue });
+            console.log(`${source}: accounts[${accountId}].${method}(${JSON.stringify(params)})`);
+            const value = await wallet.accounts[accountId][method](...(params.map(deserialize)));
+            contentPort.postMessage({ type: "callValue", requestId, value: serialize(value) });
         } catch (e) {
             console.log("Failed to call page code", e);
         }
@@ -71,4 +65,4 @@ function connected(p) {
     contentPort.onMessage.addListener(onMessage);
 }
 
-browser.runtime.onConnect.addListener(connected);
+(typeof browser !== "undefined" ? browser : chrome).runtime.onConnect.addListener(connected);

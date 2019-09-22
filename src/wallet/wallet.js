@@ -1,4 +1,4 @@
-import { decodeHex } from "orbs-client-sdk";
+import { deserialize, serialize } from "../serialization";
 import * as uuid from "uuid";
 
 class ExtensionProxy {
@@ -10,13 +10,8 @@ class ExtensionProxy {
         const requestId = uuid.v4();
         return new Promise((resolve, reject) => {
             this.context.addEventListener(`proxyMessage-${requestId}`, (e) => {
-                const { requestId, returnType, value } = JSON.parse(e.detail);
-                let deserializedValue = value;
-                if (returnType == "Uint8Array") {
-                    deserializedValue = decodeHex(value);
-                }
-
-                resolve(deserializedValue);
+                const { requestId, value } = JSON.parse(e.detail);
+                resolve(deserialize(value));
             });
 
             this.context.postMessage({
@@ -25,7 +20,7 @@ class ExtensionProxy {
                 accountId: id,
                 type: "call",
                 method: method,
-                params: argList,
+                params: (argList || []).map(serialize),
             }, "*");
         })
     }
