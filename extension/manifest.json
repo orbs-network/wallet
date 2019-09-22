@@ -4,7 +4,9 @@
     "version": "1.0",
     "description": "Implements a single Orbs account",
     "icons": {
-        "48": "icons/orbs.svg"
+        "32": "icons/orbs.svg",
+        "48": "icons/orbs.svg",
+        "96": "icons/orbs.svg"
     },
     "content_scripts": [
         {
@@ -15,5 +17,18 @@
                 "bundle.js"
             ]
         }
-    ]
+    ],
+    "background": {
+        "scripts": ["settings.js"]
+    },
+    "browser_action": {
+        "browser_style": true,
+        "default_title": "ORBS Accounts",
+        "default_popup": "settings.html",
+        "default_icon": {
+            "32": "icons/orbs.svg",
+            "48": "icons/orbs.svg",
+            "96": "icons/orbs.svg"
+        }
+      }
 }
