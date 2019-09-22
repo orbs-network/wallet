@@ -10,4 +10,4 @@ To install the extention, use `about:debugging#/runtime/this-firefox` page in Fi
 
 ## Running the tests
 
-`open ./firefox/test/test.html`
+`open ./extension/test/test.html`
