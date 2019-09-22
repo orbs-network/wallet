@@ -1,17 +1,24 @@
 import { decodeHex } from "orbs-client-sdk";
-import { isChrome, isFirefox } from "../common";
+import { isChrome } from "../common";
 import * as uuid from "uuid";
 
 class ExtensionProxy {
     constructor(context) {
         this.context = context;
-        this.callbackName = `proxyCallback${uuid.v4()}`;
-        this.context[this.callbackName] = this.onMessage.bind(this);
+
+        /**
+            Chrome and Firefox use different dispatch mechanisms:
+            - Firefox works with callbacks because its security settings disallow passing objects between contexts
+            - Chrome disallows calling function directly but allow passing objects to events
+        **/
 
         if (isChrome()) {
             this.context.orbsWalletSendMessage = (payload) => {
                 this.context.postMessage(payload, "*");
             }
+        } else {
+            this.callbackName = `proxyCallback${uuid.v4()}`;
+            this.context[this.callbackName] = this.onMessage.bind(this);
         }
     }
 
@@ -39,6 +46,7 @@ class ExtensionProxy {
         })
     }
 
+    // Used exclusively by Firefox
     onMessage(requestId, returnType, value) {
         let event = new CustomEvent(`proxyMessage-${requestId}`, {
             detail: {
