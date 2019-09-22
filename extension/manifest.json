@@ -14,12 +14,12 @@
                 "<all_urls>"
             ],
             "js": [
-                "bundle.js"
+                "contentscript.js"
             ]
         }
     ],
     "background": {
-        "scripts": ["settings.js"]
+        "scripts": ["bundle.js"]
     },
     "browser_action": {
         "browser_style": true,

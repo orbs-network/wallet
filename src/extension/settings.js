@@ -46,7 +46,9 @@ export class Wallet {
 
 const wallet = new Wallet();
 
-async function onMessage({ type, requestId, accountId, method, params, callbackName }) {
+let contentPort;
+
+async function onMessage({ type, requestId, accountId, method, params }) {
     if (type == "call") {
         try {
             const value = await wallet.accounts[accountId][method](...params);
@@ -57,29 +59,16 @@ async function onMessage({ type, requestId, accountId, method, params, callbackN
                 serializedValue = encodeHex(value);
             }
 
-            window.dispatchEvent(new CustomEvent(`proxyMessage-${requestId}`, {
-                detail: JSON.stringify({ requestId, returnType, value: serializedValue })
-            }));
+            contentPort.postMessage({ type: "callValue", requestId, returnType, value: serializedValue });
         } catch (e) {
             console.log("Failed to call page code", e);
         }
     }
 }
 
-// setting up communication from the page to the contentscript
-window.addEventListener("message", function(event) {
-    // We only accept messages from ourselves
-    if (event.source != window) {
-        return;
-    }
+function connected(p) {
+    contentPort = p;
+    contentPort.onMessage.addListener(onMessage);
+}
 
-    onMessage(event.data);
-}, false);
-
-// var myPort = browser.runtime.connect({name:"port-from-cs"});
-// myPort.postMessage({greeting: "hello from content script"});
-
-// myPort.onMessage.addListener(function(m) {
-//   console.log("In content script, received message from background script: ");
-//   console.log(m.greeting);
-// });
+browser.runtime.onConnect.addListener(connected);
