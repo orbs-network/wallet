@@ -15,11 +15,5 @@
                 "bundle.js"
             ]
         }
-    ],
-    "externally_connectable": {
-        "matches": [
-            "http://*/*",
-            "https://*/*"
-        ]
-    }
+    ]
 }

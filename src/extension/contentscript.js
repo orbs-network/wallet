@@ -1,4 +1,5 @@
 import { createAccount, DefaultSigner, encodeHex, decodeHex } from "orbs-client-sdk";
+import { isChrome, isFirefox } from "../common";
 import { get } from "lodash";
 
 class ExtensionSigner extends DefaultSigner {
@@ -60,7 +61,9 @@ async function onMessage({ type, requestId, accountId, method, params, callbackN
             if (isFirefox()) {
                 window.wrappedJSObject[callbackName](requestId, returnType, serializedValue);
             } else if (isChrome()) {
-                console.log("To be done: chrome code", arguments);
+                window.dispatchEvent(new CustomEvent(`proxyMessage-${requestId}`, {
+                    detail: { requestId, returnType, value: serializedValue }
+                }));
             }
         } catch (e) {
             console.log("Failed to call page code", e);
@@ -68,30 +71,17 @@ async function onMessage({ type, requestId, accountId, method, params, callbackN
     }
 }
 
-function isChrome() {
-    return typeof chrome !== "undefined";
-}
-
-function isFirefox() {
-    return typeof exportFunction !== "undefined";
-}
-
 if (isFirefox()) {
     exportFunction(onMessage, window, {defineAs: "orbsWalletSendMessage"});
 }
 
 if (isChrome()) {
-    console.log("this is chrome")
-    var port = chrome.runtime.connect();
-
     window.addEventListener("message", function(event) {
         // We only accept messages from ourselves
-        if (event.source != window)
+        if (event.source != window) {
             return;
-
-        if (event.data.type && (event.data.type == "FROM_PAGE")) {
-            console.log("Content script received: " + event.data.text);
-            port.postMessage(event.data.text);
         }
+
+        onMessage(event.data);
     }, false);
 }

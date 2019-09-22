@@ -1,4 +1,5 @@
 import { decodeHex } from "orbs-client-sdk";
+import { isChrome, isFirefox } from "../common";
 import * as uuid from "uuid";
 
 class ExtensionProxy {
@@ -6,14 +7,25 @@ class ExtensionProxy {
         this.context = context;
         this.callbackName = `proxyCallback${uuid.v4()}`;
         this.context[this.callbackName] = this.onMessage.bind(this);
+
+        if (isChrome()) {
+            this.context.orbsWalletSendMessage = (payload) => {
+                this.context.postMessage(payload, "*");
+            }
+        }
     }
 
     async sendMessage(id, method, argList) {
         const requestId = uuid.v4();
         return new Promise((resolve, reject) => {
             this.context.addEventListener(`proxyMessage-${requestId}`, (e) => {
-                // console.log("received event", e);
-                resolve(e.detail.value);
+                const { requestId, returnType, value } = e.detail;
+                let deserializedValue = value;
+                if (returnType == "Uint8Array") {
+                    deserializedValue = decodeHex(value);
+                }
+
+                resolve(deserializedValue);
             });
 
             this.context.orbsWalletSendMessage({
@@ -27,16 +39,10 @@ class ExtensionProxy {
         })
     }
 
-    onMessage(requestId, type, value) {
-        // console.log(type, value)
-        let deserializedValue = value;
-        if (type == "Uint8Array") {
-            deserializedValue = decodeHex(value);
-        }
-
+    onMessage(requestId, returnType, value) {
         let event = new CustomEvent(`proxyMessage-${requestId}`, {
             detail: {
-                type, value: deserializedValue
+                requestId, returnType, value
             }
         });
         this.context.dispatchEvent(event);
