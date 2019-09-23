@@ -4,6 +4,8 @@ Partial implementation of the [Wallet API](https://github.com/orbs-network/orbs-
 
 To install the extention, use `about:debugging#/runtime/this-firefox` page in Firefox.
 
+Latest build can be found [here](https://orbs-network-releases.s3.amazonaws.com/wallet/beta/latest.tar.gz).
+
 ## Building
 
 `npm run build`
