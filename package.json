@@ -23,7 +23,7 @@
     "webpack-cli": "^3.3.0"
   },
   "dependencies": {
-    "orbs-client-sdk": "../orbs-client-sdk-javascript",
+    "orbs-client-sdk": "2.0.0",
     "typescript": "^3.6.3",
     "uuid": "^3.3.3"
   }
