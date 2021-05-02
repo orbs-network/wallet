@@ -38,7 +38,7 @@ const account = accounts[0];
 ```
 
 ## Building
-
+`npm install`
 `npm run build`
 
 ## Running the tests
